@@ -1,12 +1,20 @@
 package dsa;
 
 import java.io.BufferedReader;
+
+import java.util.List;
+import org.snu.ids.kkma.ma.MExpression;
+import org.snu.ids.kkma.ma.MorphemeAnalyzer;
+import org.snu.ids.kkma.ma.Sentence;
+import org.snu.ids.kkma.index.Keyword;
+import org.snu.ids.kkma.index.KeywordExtractor;
+import org.snu.ids.kkma.index.KeywordList;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
-
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -35,7 +43,7 @@ public class w2_pa1
 		transformer.setOutputProperty(OutputKeys.INDENT, "yes");
 		Document doc = HTMLTOXML(listhtmml);
 		DOMSource source = new DOMSource(doc);
-		StreamResult result = new StreamResult(new FileOutputStream(new File("/Users/19juhpark/Desktop/result.xml")));
+		StreamResult result = new StreamResult(new FileOutputStream(new File("index.xml")));
 		
 		transformer.transform(source, result);
 		
@@ -77,7 +85,21 @@ public class w2_pa1
 			org.jsoup.nodes.Document document = Jsoup.parse(content);
 			org.jsoup.nodes.Element elements = document.select("p").first();  
 			String str = document.body().text(); 
-			body.appendChild(doc.createTextNode(str));
+			String bar = "";
+			//init KeyWord Extractor
+			KeywordExtractor ke = new KeywordExtractor();
+			//extract keywords
+			KeywordList kl = ke.extractKeyword(str, true);
+			//print result
+			for(int j = 0;j<kl.size();j++)
+			{
+				Keyword kWord = kl.get(j);
+				if(j==0)
+					bar += kWord.getString()+":"+kWord.getCnt();
+				else
+					bar += "#"+kWord.getString()+":"+kWord.getCnt();
+			}
+			body.appendChild(doc.createTextNode(bar));
 			docId.appendChild(body);
 		}
 		return doc;
